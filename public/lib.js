@@ -8,6 +8,8 @@
 
   $ = jQuery;
 
+  Picplum.api_base = 'http://local.dev:3000/api/1/cors';
+
   Picplum.init = function(app_id, opts) {
     var options;
     if (opts == null) {
@@ -27,22 +29,16 @@
     Picplum.settings = $.extend(options, opts);
     Picplum.debug = Picplum.settings.debug;
     Picplum.selected_photos = {};
-    Picplum.log('PicplumJS Init()');
+    console.log('PicplumJS Init()');
     Picplum.PickerUI.init();
     return true;
-  };
-
-  Picplum.log = function(msg) {
-    if (Picplum.debug) {
-      return console.log(msg);
-    }
   };
 
   Picplum.Photo = {
     selected_count: function() {
       var key, size;
       size = 0;
-      Picplum.log(Picplum.selected_photos);
+      console.log(Picplum.selected_photos);
       for (key in Picplum.selected_photos) {
         if (Picplum.selected_photos.hasOwnProperty(key)) {
           size++;
@@ -57,13 +53,12 @@
         thumb_url: thumb_url,
         url: url
       };
-      Picplum.log('New Photo selected');
-      Picplum.log(Picplum.selected_photos[new_id]);
+      console.log('Photo selected: ' + new_id);
       return new_id;
     },
     deselect: function(id) {
       delete Picplum.selected_photos[id];
-      Picplum.log('Photo de-selected => ' + id);
+      console.log('Photo de-selected: ' + id);
       return id;
     },
     idCounter: 0,
@@ -77,9 +72,22 @@
     }
   };
 
+  Picplum.Page = {
+    create: function() {
+      return $.ajax({
+        type: "GET",
+        url: Picplum.api_base,
+        dataType: "json",
+        xhrFields: {
+          withCredentials: true
+        }
+      });
+    }
+  };
+
   Picplum.PickerUI = {
     init: function() {
-      Picplum.log('Picker UI Init');
+      console.log('Picker UI Init');
       this.print_bar();
       return this.photos_grid();
     },
@@ -90,7 +98,7 @@
     },
     photos_grid: function() {
       var el;
-      Picplum.log('Picker UI Init: Photos Grid');
+      console.log('Picker UI Init: Photos Grid');
       el = $(Picplum.settings.img_class);
       return el.on('click', function() {
         var puid, selected;
@@ -118,7 +126,6 @@
       var count, el;
       el = $(Picplum.settings.selected_count_class);
       count = Picplum.Photo.selected_count();
-      Picplum.log(count);
       if (count > 0) {
         el.html("<b>" + count + "</b> photos selected for print");
         el.show();

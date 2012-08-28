@@ -4,6 +4,17 @@ root.Picplum = root.Picplum || {}
 # jQuery dependency for now. 
 $ = jQuery
 
+# Picplum API Base
+Picplum.api_base = 'http://local.dev:3000/api/1/cors'
+# Picplum.api_base = 'https://api.picplum.com/1'
+
+# XHR request method
+# Picplum.easyXDM = easyXDM.noConflict "Picplum"
+# Picplum.xhr = new Picplum.easyXDM.Rpc 
+#   remote: Picplum.api_base
+#   ,
+#     remote:
+#       request: {}
 
 # Init Picplum library with options
 Picplum.init = (app_id, opts = {}) ->
@@ -23,14 +34,10 @@ Picplum.init = (app_id, opts = {}) ->
   Picplum.settings = $.extend options, opts
   Picplum.debug = Picplum.settings.debug
   Picplum.selected_photos = {}
-
-  Picplum.log 'PicplumJS Init()'
+  console.log 'PicplumJS Init()'
   Picplum.PickerUI.init()
   true
 
-# Log Library
-Picplum.log = (msg) ->
-  console.log(msg) if Picplum.debug
 
 # Picplum Photo Resource and methods
 # ----------------------------------------
@@ -38,7 +45,7 @@ Picplum.log = (msg) ->
 Picplum.Photo = 
   selected_count: ->
     size = 0
-    Picplum.log Picplum.selected_photos
+    console.log Picplum.selected_photos
     size++ for key of Picplum.selected_photos when Picplum.selected_photos.hasOwnProperty(key)
     size
 
@@ -48,14 +55,13 @@ Picplum.Photo =
     Picplum.selected_photos[new_id] =
       thumb_url: thumb_url
       url: url
-    Picplum.log 'New Photo selected'
-    Picplum.log Picplum.selected_photos[new_id]
+    console.log 'Photo selected: '+new_id
     new_id
 
   # Remove photo from selected photo collection. 
   deselect: (id) ->
     delete Picplum.selected_photos[id] 
-    Picplum.log 'Photo de-selected => '+id
+    console.log 'Photo de-selected: '+id
     id 
 
   # Generate a uuid for selected photo
@@ -64,10 +70,20 @@ Picplum.Photo =
     id = Picplum.Photo.idCounter++
     prefix + id
 
+Picplum.Page =
+  create: ->
+    $.ajax
+      type: "GET",
+      url: Picplum.api_base
+      dataType: "json"
+      xhrFields:
+        withCredentials: true 
+
+
 
 Picplum.PickerUI =
   init: ->
-    Picplum.log('Picker UI Init')
+    console.log('Picker UI Init')
     @print_bar()
     @photos_grid()
 
@@ -80,7 +96,7 @@ Picplum.PickerUI =
             """
 
   photos_grid: ->
-    Picplum.log('Picker UI Init: Photos Grid')
+    console.log('Picker UI Init: Photos Grid')
     el = $(Picplum.settings.img_class)
     el.on 'click', ->
       selected = $(@).data('puid')
@@ -102,7 +118,6 @@ Picplum.PickerUI =
   selected_ui: ->
     el = $(Picplum.settings.selected_count_class)
     count = Picplum.Photo.selected_count()
-    Picplum.log count
     if count > 0
       el.html "<b>#{count}</b> photos selected for print"
       el.show()
