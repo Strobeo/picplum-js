@@ -5,7 +5,7 @@ root.Picplum = root.Picplum || {}
 $ = jQuery
 
 # Picplum API Base
-Picplum.api_base = 'http://local.dev:3000/api/1/cors'
+Picplum.api_base = 'http://local.dev:3000/api/1'
 # Picplum.api_base = 'https://api.picplum.com/1'
 
 # XHR request method
@@ -17,7 +17,7 @@ Picplum.api_base = 'http://local.dev:3000/api/1/cors'
 #       request: {}
 
 # Init Picplum library with options
-Picplum.init = (app_id, opts = {}) ->
+Picplum.init = (@app_id, opts = {}) ->
   options = 
     insert_btns: true 
     insert_count: true 
@@ -34,7 +34,7 @@ Picplum.init = (app_id, opts = {}) ->
   Picplum.settings = $.extend options, opts
   Picplum.debug = Picplum.settings.debug
   Picplum.selected_photos = {}
-  console.log 'PicplumJS Init()'
+  console.log "PicplumJS Init(#{@app_id})"
   Picplum.PickerUI.init()
   true
 
@@ -70,14 +70,25 @@ Picplum.Photo =
     id = Picplum.Photo.idCounter++
     prefix + id
 
+# Picplum Partner Page
 Picplum.Page =
   create: ->
-    $.ajax
-      type: "GET",
-      url: Picplum.api_base
+    req = $.ajax
+      type: "POST",
+      url: Picplum.api_base+'/pages'
       dataType: "json"
       xhrFields:
-        withCredentials: true 
+        withCredentials: true
+      data:
+        app_id: Picplum.app_id
+        images: Picplum.selected_photos
+        ref_url: window.location.href
+    
+    req.done (data) ->
+      @url = data.url
+      @open()
+
+  open: ->
 
 
 
@@ -86,7 +97,9 @@ Picplum.PickerUI =
     console.log('Picker UI Init')
     @print_bar()
     @photos_grid()
+    @bind_btns()
 
+  # Insert Print bar with buttons and selected state
   print_bar: ->
     el = $(Picplum.settings.print_bar_class)
     el.html """
@@ -94,27 +107,24 @@ Picplum.PickerUI =
       <button style="display: none;" class='btn #{Picplum.settings.print_selected_btn_class.replace('.', '')}' type='button'>Print Selected</button>
       <span style="display: none;" class='#{Picplum.settings.selected_count_class.replace('.', '')}'></span>
             """
-
+  # Insert image overlay UI for print and bindings
   photos_grid: ->
+    self = @
     console.log('Picker UI Init: Photos Grid')
     el = $(Picplum.settings.img_class)
     el.on 'click', ->
-      selected = $(@).data('puid')
-      if selected
-        Picplum.Photo.deselect selected        
-        $(@).removeData('puid')
-        $(@).css
-          border: 0
-          margin: 0
-      else
-        puid = Picplum.Photo.select $(@).attr('src'), $(@).data('highres')
-        $(@).data('puid', puid)
-        $(@).css
-          'box-sizing': 'content-box'
-          border: '4px solid black'
-          margin: '-4px 0 0 -4px'
-      Picplum.PickerUI.selected_ui()
+      self.select(@)
+      self.selected_ui()
 
+  # Bind to print bar buttons
+  bind_btns: ->
+    $(Picplum.settings.print_all_btn_class).on 'click', =>
+      @select_all()
+      Picplum.Page.create()
+
+    $(Picplum.settings.print_selected_btn_class).on 'click', -> Picplum.Page.create()
+
+  # Selected photos state
   selected_ui: ->
     el = $(Picplum.settings.selected_count_class)
     count = Picplum.Photo.selected_count()
@@ -126,44 +136,28 @@ Picplum.PickerUI =
       el.hide()
       $(Picplum.settings.print_selected_btn_class).hide()
 
-###
-Initialize Library
-Picplum.init(APP_ID, KEY,
-{
-img_class: 'photo', 
-print_bar_class: 'print_bar', 
-print_selected_btn_class: 'print_selected_btn',
-print_all_btn_class: 'print_all_btn',
-selected_count_class: 'selected_count',
-insert_btns: true, 
-insert_count: true, 
-on_print: function(resp, data) {}
-}) 
+  # Select an image
+  select: (img) ->
+    el = $(img)
+    selected = el.data('puid')
+    if selected
+      Picplum.Photo.deselect selected        
+      el.removeData('puid')
+      el.css
+        border: 0
+        margin: 0
+    else
+      puid = Picplum.Photo.select el.attr('src'), el.data('highres')
+      el.data('puid', puid)
+      el.css
+        'box-sizing': 'content-box'
+        border: '4px solid black'
+        margin: '-4px 0 0 -4px'
 
-2. Done. 
-
-JS API Low Level
-
-Initialize Library
-Picplum.init(APP_ID, KEY) 
-
-Select Photo
-photo_obj = Picplum.Photo.select(
-thumb_url: 
-full_img_url:
-)
-
-Remove Photo
-Picplum.Photo.remove(photo_obj)
-
-Create Partner Page
-Picplum.Page.create({
-
-error: function(resp) {}, 
-success: function(resp, data) {}
-})
-Open Page
-Picplum.Page.open()
+  # Select all images
+  select_all: ->
+    self = @
+    $(Picplum.settings.img_class).each -> self.select(@)
 
 
-###
+

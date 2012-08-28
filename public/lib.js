@@ -8,10 +8,11 @@
 
   $ = jQuery;
 
-  Picplum.api_base = 'http://local.dev:3000/api/1/cors';
+  Picplum.api_base = 'http://local.dev:3000/api/1';
 
   Picplum.init = function(app_id, opts) {
     var options;
+    this.app_id = app_id;
     if (opts == null) {
       opts = {};
     }
@@ -29,7 +30,7 @@
     Picplum.settings = $.extend(options, opts);
     Picplum.debug = Picplum.settings.debug;
     Picplum.selected_photos = {};
-    console.log('PicplumJS Init()');
+    console.log("PicplumJS Init(" + this.app_id + ")");
     Picplum.PickerUI.init();
     return true;
   };
@@ -74,22 +75,34 @@
 
   Picplum.Page = {
     create: function() {
-      return $.ajax({
-        type: "GET",
-        url: Picplum.api_base,
+      var req;
+      req = $.ajax({
+        type: "POST",
+        url: Picplum.api_base + '/pages',
         dataType: "json",
         xhrFields: {
           withCredentials: true
+        },
+        data: {
+          app_id: Picplum.app_id,
+          images: Picplum.selected_photos,
+          ref_url: window.location.href
         }
       });
-    }
+      return req.done(function(data) {
+        this.url = data.url;
+        return this.open();
+      });
+    },
+    open: function() {}
   };
 
   Picplum.PickerUI = {
     init: function() {
       console.log('Picker UI Init');
       this.print_bar();
-      return this.photos_grid();
+      this.photos_grid();
+      return this.bind_btns();
     },
     print_bar: function() {
       var el;
@@ -97,29 +110,23 @@
       return el.html("<button class='btn " + (Picplum.settings.print_all_btn_class.replace('.', '')) + "' type='button'>Print All Photos</button>\n<button style=\"display: none;\" class='btn " + (Picplum.settings.print_selected_btn_class.replace('.', '')) + "' type='button'>Print Selected</button>\n<span style=\"display: none;\" class='" + (Picplum.settings.selected_count_class.replace('.', '')) + "'></span>");
     },
     photos_grid: function() {
-      var el;
+      var el, self;
+      self = this;
       console.log('Picker UI Init: Photos Grid');
       el = $(Picplum.settings.img_class);
       return el.on('click', function() {
-        var puid, selected;
-        selected = $(this).data('puid');
-        if (selected) {
-          Picplum.Photo.deselect(selected);
-          $(this).removeData('puid');
-          $(this).css({
-            border: 0,
-            margin: 0
-          });
-        } else {
-          puid = Picplum.Photo.select($(this).attr('src'), $(this).data('highres'));
-          $(this).data('puid', puid);
-          $(this).css({
-            'box-sizing': 'content-box',
-            border: '4px solid black',
-            margin: '-4px 0 0 -4px'
-          });
-        }
-        return Picplum.PickerUI.selected_ui();
+        self.select(this);
+        return self.selected_ui();
+      });
+    },
+    bind_btns: function() {
+      var _this = this;
+      $(Picplum.settings.print_all_btn_class).on('click', function() {
+        _this.select_all();
+        return Picplum.Page.create();
+      });
+      return $(Picplum.settings.print_selected_btn_class).on('click', function() {
+        return Picplum.Page.create();
       });
     },
     selected_ui: function() {
@@ -134,48 +141,35 @@
         el.hide();
         return $(Picplum.settings.print_selected_btn_class).hide();
       }
+    },
+    select: function(img) {
+      var el, puid, selected;
+      el = $(img);
+      selected = el.data('puid');
+      if (selected) {
+        Picplum.Photo.deselect(selected);
+        el.removeData('puid');
+        return el.css({
+          border: 0,
+          margin: 0
+        });
+      } else {
+        puid = Picplum.Photo.select(el.attr('src'), el.data('highres'));
+        el.data('puid', puid);
+        return el.css({
+          'box-sizing': 'content-box',
+          border: '4px solid black',
+          margin: '-4px 0 0 -4px'
+        });
+      }
+    },
+    select_all: function() {
+      var self;
+      self = this;
+      return $(Picplum.settings.img_class).each(function() {
+        return self.select(this);
+      });
     }
   };
-
-  /*
-  Initialize Library
-  Picplum.init(APP_ID, KEY,
-  {
-  img_class: 'photo', 
-  print_bar_class: 'print_bar', 
-  print_selected_btn_class: 'print_selected_btn',
-  print_all_btn_class: 'print_all_btn',
-  selected_count_class: 'selected_count',
-  insert_btns: true, 
-  insert_count: true, 
-  on_print: function(resp, data) {}
-  }) 
-  
-  2. Done. 
-  
-  JS API Low Level
-  
-  Initialize Library
-  Picplum.init(APP_ID, KEY) 
-  
-  Select Photo
-  photo_obj = Picplum.Photo.select(
-  thumb_url: 
-  full_img_url:
-  )
-  
-  Remove Photo
-  Picplum.Photo.remove(photo_obj)
-  
-  Create Partner Page
-  Picplum.Page.create({
-  
-  error: function(resp) {}, 
-  success: function(resp, data) {}
-  })
-  Open Page
-  Picplum.Page.open()
-  */
-
 
 }).call(this);
