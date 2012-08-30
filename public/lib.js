@@ -20,6 +20,7 @@
       insert_btns: true,
       insert_count: true,
       img_class: '.photo',
+      img_selected_class: 'selected_print',
       print_bar_class: '.print_bar',
       print_selected_btn_class: '.print_selected_btn',
       print_all_btn_class: '.print_all_btn',
@@ -30,7 +31,9 @@
     Picplum.settings = $.extend(options, opts);
     Picplum.debug = Picplum.settings.debug;
     Picplum.selected_photos = {};
-    console.log("PicplumJS Init(" + this.app_id + ")");
+    if (Picplum.debug) {
+      console.log("PicplumJS Init(" + this.app_id + ")");
+    }
     Picplum.PickerUI.init();
     return true;
   };
@@ -39,7 +42,9 @@
     selected_count: function() {
       var key, size;
       size = 0;
-      console.log(Picplum.selected_photos);
+      if (Picplum.debug) {
+        console.log(Picplum.selected_photos);
+      }
       for (key in Picplum.selected_photos) {
         if (Picplum.selected_photos.hasOwnProperty(key)) {
           size++;
@@ -54,12 +59,16 @@
         thumb_url: thumb_url,
         url: url
       };
-      console.log('Photo selected: ' + new_id);
+      if (Picplum.debug) {
+        console.log('Photo selected: ' + new_id);
+      }
       return new_id;
     },
     deselect: function(id) {
       delete Picplum.selected_photos[id];
-      console.log('Photo de-selected: ' + id);
+      if (Picplum.debug) {
+        console.log('Photo de-selected: ' + id);
+      }
       return id;
     },
     idCounter: 0,
@@ -75,8 +84,13 @@
 
   Picplum.Page = {
     create: function() {
-      var req;
-      req = $.ajax({
+      Picplum.PickerUI.status('Creating Print Page');
+      return this.send_data();
+    },
+    send_data: function() {
+      var req,
+        _this = this;
+      return req = $.ajax({
         type: "POST",
         url: Picplum.api_base + '/pages',
         dataType: "json",
@@ -87,19 +101,37 @@
           app_id: Picplum.app_id,
           images: Picplum.selected_photos,
           ref_url: window.location.href
+        },
+        error: function() {
+          return Picplum.PickerUI.status('', false);
+        },
+        success: function(data) {
+          var url;
+          Picplum.PickerUI.status('', false);
+          console.info("Images Created");
+          url = data.url;
+          return _this.open(url);
         }
       });
-      return req.done(function(data) {
-        this.url = data.url;
-        return this.open();
-      });
     },
-    open: function() {}
+    open: function(url) {
+      if (url == null) {
+        url = '';
+      }
+      $('.open_picplum').attr({
+        target: "_blank",
+        title: "Print selected photos via Picplum.com"
+      });
+      $(".open_picplum").trigger('click');
+      return window.location = url;
+    }
   };
 
   Picplum.PickerUI = {
     init: function() {
-      console.log('Picker UI Init');
+      if (Picplum.debug) {
+        console.log('Picker UI Init');
+      }
       this.print_bar();
       this.photos_grid();
       return this.bind_btns();
@@ -107,12 +139,14 @@
     print_bar: function() {
       var el;
       el = $(Picplum.settings.print_bar_class);
-      return el.html("<button class='btn " + (Picplum.settings.print_all_btn_class.replace('.', '')) + "' type='button'>Print All Photos</button>\n<button style=\"display: none;\" class='btn " + (Picplum.settings.print_selected_btn_class.replace('.', '')) + "' type='button'>Print Selected</button>\n<span style=\"display: none;\" class='" + (Picplum.settings.selected_count_class.replace('.', '')) + "'></span>");
+      return el.html("<button class='btn " + (Picplum.settings.print_all_btn_class.replace('.', '')) + "' type='button'>Print All Photos</button>\n<button style=\"display: none;\" class='btn " + (Picplum.settings.print_selected_btn_class.replace('.', '')) + "' type='button'>Print Selected</button>\n<span style=\"display: none;\" class='" + (Picplum.settings.selected_count_class.replace('.', '')) + "'></span>\n<a href='http://local.dev:3000' class='btn open_picplum' style=\"display: none\">Open Picplum</a>\n<div class=\"picplum_status\">This is the current status</div>");
     },
     photos_grid: function() {
       var el, self;
       self = this;
-      console.log('Picker UI Init: Photos Grid');
+      if (Picplum.debug) {
+        console.log('Picker UI Init: Photos Grid');
+      }
       el = $(Picplum.settings.img_class);
       return el.on('click', function() {
         self.select(this);
@@ -125,8 +159,14 @@
         _this.select_all();
         return Picplum.Page.create();
       });
-      return $(Picplum.settings.print_selected_btn_class).on('click', function() {
+      $(Picplum.settings.print_selected_btn_class).on('click', function() {
         return Picplum.Page.create();
+      });
+      return $('.open_picplum').click(function() {
+        window.open($(this).attr('href'));
+        if (Picplum.debug) {
+          return console.log('opne link');
+        }
       });
     },
     selected_ui: function() {
@@ -148,19 +188,10 @@
       selected = el.data('puid');
       if (selected) {
         Picplum.Photo.deselect(selected);
-        el.removeData('puid');
-        return el.css({
-          border: 0,
-          margin: 0
-        });
+        return el.removeData('puid').removeClass(Picplum.settings.img_selected_class);
       } else {
         puid = Picplum.Photo.select(el.attr('src'), el.data('highres'));
-        el.data('puid', puid);
-        return el.css({
-          'box-sizing': 'content-box',
-          border: '4px solid black',
-          margin: '-4px 0 0 -4px'
-        });
+        return el.data('puid', puid).addClass(Picplum.settings.img_selected_class);
       }
     },
     select_all: function() {
@@ -169,6 +200,15 @@
       return $(Picplum.settings.img_class).each(function() {
         return self.select(this);
       });
+    },
+    status: function(msg, show) {
+      if (msg == null) {
+        msg = '';
+      }
+      if (show == null) {
+        show = true;
+      }
+      return $(Picplum.settings.print_bar_class + ' .picplum_status').toggle(show).html(msg);
     }
   };
 

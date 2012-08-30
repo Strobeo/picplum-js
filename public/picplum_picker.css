@@ -1,0 +1,44 @@
+/*
+    Picplum Photo Picker UI CSS. Feel free to modify as needed. 
+    Need help? => dev@picplum.com
+
+*/
+
+/* Print Bar and Print Btns */
+.print_bar { 
+  position: relative; 
+}
+.print_bar .btn { }
+.print_bar .print_all_btn { }
+.print_bar .print_selected_btn { }
+.print_bar .selected_count { }
+.print_bar .picplum_status {
+  display: none;
+  position: absolute;
+  font-weight: bold;
+  background: #333;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  padding: 5px 10px;
+  color: white;
+  box-sizing: border-box;
+  border-radius: 5px;
+}
+
+/* Image Styles and selected states*/
+img.photo { 
+  margin-bottom: 4px;
+}
+
+img.photo:hover {
+  border: 4px solid purple;
+  margin: -4px 0 0 -4px;
+}
+
+img.photo.selected_print {
+  border: 4px solid black;
+  margin: -4px 0 0 -4px;
+}
+
+

@@ -1,5 +1,6 @@
 GEM
   specs:
+    coderay (1.0.5)
     coffee-script (2.2.0)
       coffee-script-source
       execjs
@@ -23,6 +24,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  coderay
   coffee-script (~> 2.2.0)
   foreman
   sinatra

@@ -1,3 +1,5 @@
+require 'coderay'
+
 class JsApiApp < Sinatra::Base
 
   get "/" do
