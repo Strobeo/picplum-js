@@ -3,7 +3,11 @@ require 'coderay'
 class JsApiApp < Sinatra::Base
 
   get "/" do
-    erb :test
+    erb :index
   end
   
+  get "/test" do
+    erb :test
+  end
+
 end

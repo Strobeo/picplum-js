@@ -9,7 +9,7 @@
 
     <!-- Le styles -->
     <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
-    <link href="/picplum_picker.css" rel="stylesheet">
+    <link href="picplum.css" rel="stylesheet">
     <style type="text/css">
       .row {
         margin: 20px 0;
@@ -26,7 +26,7 @@
   <body>
     <div class="container">
 
-      <h1>Picplum Javascript SDK Test</h1>
+      <h1>Picplum Javascript SDK</h1>
       <p>Use this document as a way to quick start any new project. All you get is this message and a barebones HTML document.</p>
 
       <div class="row">
@@ -54,69 +54,10 @@
         </div>
       </div>
 
-      <div class="row">
-        <div class="span10 guide">
-          <h3>Setup Javascript and CSS</h2>
-          <section>
-            <h4>1. Create a Picplum developer client and get a Client ID</h4>
-            <p>You can create a developer client on the <a href="https://www.picplum.com/developer/clients">Manage Clients</a> page. After you create a client. You can use the <code>CLIENT ID</code> in step 4. </p>
-          </section>
-          <section>
-            <h4>2. Insert Picplum CSS tag (optional)</h4>
-            <p>The CSS file has basic styles that can be used as an example for you to define your own styles. Feel free to copy and paste the css into your own stylesheet.</p>
-            <%= CodeRay.scan('<link rel="stylesheet" href="https://api.picplum.com/js/picplum.css">', :html).div() %>            
-          </section>
-          <section>
-            <h4>3. Insert Picplum JS Script tag</h4>
-            <%= CodeRay.scan('<script type="text/javascript" src="https://api.picplum.com/js/picplum.js"></script>', :html).div() %>
-          </section>
-          <section>
-            <h4>4. Initialize Picplum JS</h4>
-            <p>Basic code with defaults.</p>
-            <%= CodeRay.scan("Picplum.init('CLIENT_ID');", :javascript).div() %>
-            <p>Options that can be modified. (Defaults)</p>
-            <%= CodeRay.scan("Picplum.init('CLIENT_ID', {
-  insert_btns: true,
-  insert_count: true,
-  img_class: '.photo',
-  img_selected_class: 'selected_print',
-  print_bar_class: '.print_bar',
-  print_selected_btn_class: '.print_selected_btn',
-  print_all_btn_class: '.print_all_btn',
-  selected_count_class: '.selected_count',
-  apply_styles: true,
-  debug: false
-});", :javascript).div() %>
-          </section>
-
-          <h3>Setup Markup</h2>
-          <section>
-            <h4>Basic Markup</h4>
-            <p>The library is pretty flexible and allows your to setup your html and css markup how ever you choose. Below is an example on how you could markup your image gallery and button wrapper where the "print" buttons whill be inserted. We have picked a few simple class names for buttons images and wrapper elements. You can customize them during initialization (step 4 above). </p>
-<%= CodeRay.scan('<div class="print_bar"><!-- Buttons will be inserted here --></div>
-<div class="gallery">
-  <ul>
-    <li>
-      <img src="image path" class="photo" data-highres="Path for full resolution image">
-    </li>
-    <li>...</li>
-    <li>...</li>
-  <ul>
-</div>', :html).div() %>
-          <p> The one <strong>requirement</strong> is that each image needs to have a <code>data</code> attribute labeled <code>data-highres</code> that will be used as the source of the full/high resolution image (original is the best) for printing. 
-            We will use the image <code>src</code> as the thumb of the image. You can specify a different thumb using the <code>data-thumb</code> attribute on the image. Example image markup with highres attribute. 
-            <%= CodeRay.scan('<img src="https://d37mmodh84715u.cloudfront.net/i/ff5CKuDAg5IWhg/240-150_cdd62bfae73d11e1abd6123138045d81_7.jpg" class="img-rounded photo" data-highres="https://d37mmodh84715u.cloudfront.net/i/ff5CKuDAg5IWhg/cdd62bfae73d11e1abd6123138045d81_7.jpg">', :html).div() %>
-           </p>
-          </section>
-
-        </div>
-      </div>
-
-
     </div> <!-- /container -->
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
-    <script src="lib.js"></script>
+    <script src="/lib.js"></script>
 
 
     <script type="text/javascript">

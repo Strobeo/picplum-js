@@ -1,3 +1,9 @@
+###
+    Picplum JS Library.  
+    Documenation => https://www.picplum.com/developer/js
+    Need help? => dev@picplum.com
+###
+
 root = exports ? this
 root.Picplum = root.Picplum || {}
 
