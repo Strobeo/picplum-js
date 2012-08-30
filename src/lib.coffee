@@ -12,7 +12,7 @@ $ = jQuery
 
 # Picplum API Base
 # Picplum.api_base = 'http://local.dev:3000/api/1'
-Picplum.api_base = 'https://api.picplum.com/1'
+Picplum.api_base = 'https://www.picplum.com/api/1'
 
 
 # Init Picplum library with options

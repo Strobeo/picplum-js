@@ -16,7 +16,7 @@
 
   $ = jQuery;
 
-  Picplum.api_base = 'http://local.dev:3000/api/1';
+  Picplum.api_base = 'https://www.picplum.com/api/1';
 
   Picplum.init = function(app_id, opts) {
     var options;
@@ -128,7 +128,8 @@
       }
       $('.open_picplum').attr({
         target: "_blank",
-        title: "Print selected photos via Picplum.com"
+        title: "Print selected photos via Picplum.com",
+        href: url
       });
       $(".open_picplum").trigger('click');
       return window.location = url;
