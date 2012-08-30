@@ -11,8 +11,8 @@ root.Picplum = root.Picplum || {}
 $ = jQuery
 
 # Picplum API Base
-Picplum.api_base = 'http://local.dev:3000/api/1'
-# Picplum.api_base = 'https://api.picplum.com/1'
+# Picplum.api_base = 'http://local.dev:3000/api/1'
+Picplum.api_base = 'https://api.picplum.com/1'
 
 
 # Init Picplum library with options
@@ -81,7 +81,6 @@ Picplum.Page =
       type: "POST",
       url: Picplum.api_base+'/pages'
       dataType: "json"
-      # async: false
       xhrFields:
         withCredentials: true
       data:
@@ -101,6 +100,7 @@ Picplum.Page =
     $('.open_picplum').attr
       target: "_blank"
       title: "Print selected photos via Picplum.com"
+      href: url 
 
     $(".open_picplum").trigger('click')
     window.location = url
