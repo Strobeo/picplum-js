@@ -142,6 +142,7 @@ Picplum.PickerUI =
       console.log 'select'
       self.select(@)
       self.selected_ui()
+      false
     
     $(Picplum.settings.select_mode_btn_class).show().on 'click', => @select_mode_ui() if Picplum.settings.select_mode
 
@@ -194,7 +195,8 @@ Picplum.PickerUI =
       el.removeData('puid')
       .removeClass(Picplum.settings.img_selected_class)
     else
-      puid = Picplum.Photo.select el.attr('src'), el.data('highres')
+      thumb = if el.data('thumb') then el.data('thumb') else el.attr('src')
+      puid = Picplum.Photo.select thumb, el.data('highres')
       el.data('puid', puid)
       .addClass(Picplum.settings.img_selected_class)
 

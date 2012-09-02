@@ -164,7 +164,8 @@
       $(document).on('click', "" + Picplum.settings.img_class + ".select_mode", function() {
         console.log('select');
         self.select(this);
-        return self.selected_ui();
+        self.selected_ui();
+        return false;
       });
       $(Picplum.settings.select_mode_btn_class).show().on('click', function() {
         if (Picplum.settings.select_mode) {
@@ -218,7 +219,7 @@
       }
     },
     select: function(img, force) {
-      var el, puid, selected;
+      var el, puid, selected, thumb;
       if (force == null) {
         force = true;
       }
@@ -228,7 +229,8 @@
         Picplum.Photo.deselect(selected);
         return el.removeData('puid').removeClass(Picplum.settings.img_selected_class);
       } else {
-        puid = Picplum.Photo.select(el.attr('src'), el.data('highres'));
+        thumb = el.data('thumb') ? el.data('thumb') : el.attr('src');
+        puid = Picplum.Photo.select(thumb, el.data('highres'));
         return el.data('puid', puid).addClass(Picplum.settings.img_selected_class);
       }
     },
