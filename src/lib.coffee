@@ -19,11 +19,14 @@ Picplum.api_base = 'https://www.picplum.com/api/1'
 Picplum.init = (@app_id, opts = {}) ->
   options = 
     insert_btns: true 
+    select_mode: true 
     insert_count: true 
     img_class: '.photo'
     img_selected_class: 'selected_print'
     print_bar_class: '.print_bar'
+    select_mode_btn_class: '.select_mode_btn'
     print_selected_btn_class: '.print_selected_btn'
+    print_selected_btn_text: 'Select Photos for Print'
     print_all_btn_class: '.print_all_btn'
     selected_count_class: '.selected_count'
     apply_styles: true
@@ -108,37 +111,40 @@ Picplum.Page =
 
 
 Picplum.PickerUI =
+  select_mode: false
   init: ->
     console.log('Picker UI Init') if Picplum.debug
     @print_bar()
-    @photos_grid()
     @bind_btns()
 
   # Insert Print bar with buttons and selected state
   print_bar: ->
     el = $(Picplum.settings.print_bar_class)
     el.html """
-      <button class='btn #{Picplum.settings.print_all_btn_class.replace('.', '')}' type='button'>Print All Photos</button>
+      <h5>Select and print photos via <a href="https://www.picplum.com" title="Picplum.com - Easiest way to send photo prints." target="_blank">Picplum.com</a></h5>
+      <button style="display: none;" class='btn #{Picplum.settings.select_mode_btn_class.replace('.', '')}' type='button'>Select Photos for Print</button>
       <button style="display: none;" class='btn #{Picplum.settings.print_selected_btn_class.replace('.', '')}' type='button'>Print Selected</button>
       <span style="display: none;" class='#{Picplum.settings.selected_count_class.replace('.', '')}'></span>
       <a href='http://local.dev:3000' class='btn open_picplum' style="display: none">Open Picplum</a>
       <div class="picplum_status">This is the current status</div>
             """
 
-  # Insert image overlay UI for print and bindings
-  photos_grid: ->
-    self = @
-    console.log('Picker UI Init: Photos Grid') if Picplum.debug
-    el = $(Picplum.settings.img_class)
-    el.on 'click', ->
-      self.select(@)
-      self.selected_ui()
-
   # Bind to print bar buttons
   bind_btns: ->
+    self = @
+
+    # Print All Button
     $(Picplum.settings.print_all_btn_class).on 'click', =>
       @select_all()
       Picplum.Page.create()
+
+    $(document).on 'click', "#{Picplum.settings.img_class}.select_mode", ->
+      console.log 'select'
+      self.select(@)
+      self.selected_ui()
+    
+    $(Picplum.settings.select_mode_btn_class).show().on 'click', => @select_mode_ui() if Picplum.settings.select_mode
+
 
     $(Picplum.settings.print_selected_btn_class).on 'click', -> Picplum.Page.create()
 
@@ -146,6 +152,26 @@ Picplum.PickerUI =
       window.open($(@).attr('href'))
       console.log('opne link') if Picplum.debug
 
+  select_mode_ui: ->
+    btn_el = $(Picplum.settings.select_mode_btn_class)
+    if @select_mode
+      btn_el.removeClass('btn-inverse')
+      .text Picplum.settings.print_selected_btn_text
+      @select_mode = false
+    else
+      btn_el.addClass('btn-inverse')
+      .text 'Cancel'
+      @select_mode = true
+    @load_selection()
+
+  select_mode_on: ->
+
+
+  load_selection: ->
+    self = @
+    $(Picplum.settings.img_class).each ->
+      $(@).toggleClass 'select_mode', self.select_mode
+      $(@).addClass(Picplum.settings.img_selected_class) if self.select_mode and $(@).data('puid')
 
   # Selected photos state
   selected_ui: ->
@@ -160,7 +186,7 @@ Picplum.PickerUI =
       $(Picplum.settings.print_selected_btn_class).hide()
 
   # Select an image
-  select: (img) ->
+  select: (img, force = true) ->
     el = $(img)
     selected = el.data('puid')
     if selected
