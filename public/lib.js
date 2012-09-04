@@ -16,7 +16,7 @@
 
   $ = jQuery;
 
-  Picplum.api_base = 'https://www.picplum.com/api/1';
+  Picplum.api_base = 'http://local.dev:3000/api/1';
 
   Picplum.init = function(app_id, opts) {
     var options;
@@ -63,13 +63,37 @@
       }
       return size;
     },
-    select: function(thumb_url, url) {
+    select: function(thumb_url, url, tw, th, w, h) {
       var new_id;
+      if (tw == null) {
+        tw = 0;
+      }
+      if (th == null) {
+        th = 0;
+      }
+      if (w == null) {
+        w = 0;
+      }
+      if (h == null) {
+        h = 0;
+      }
       new_id = this.uniqueId();
       Picplum.selected_photos[new_id] = {
         thumb_url: thumb_url,
         url: url
       };
+      if (w > 0) {
+        Picplum.selected_photos[new_id]['width'] = w;
+      }
+      if (h > 0) {
+        Picplum.selected_photos[new_id]['height'] = h;
+      }
+      if (tw > 0) {
+        Picplum.selected_photos[new_id]['thumb_width'] = tw;
+      }
+      if (th > 0) {
+        Picplum.selected_photos[new_id]['thumb_height'] = th;
+      }
       if (Picplum.debug) {
         console.log('Photo selected: ' + new_id);
       }
@@ -219,7 +243,7 @@
       }
     },
     select: function(img, force) {
-      var el, puid, selected, thumb;
+      var el, puid, selected, th, thumb, tw;
       if (force == null) {
         force = true;
       }
@@ -230,7 +254,9 @@
         return el.removeData('puid').removeClass(Picplum.settings.img_selected_class);
       } else {
         thumb = el.data('thumb') ? el.data('thumb') : el.attr('src');
-        puid = Picplum.Photo.select(thumb, el.data('highres'));
+        tw = el[0].naturalWidth;
+        th = el[0].naturalHeight;
+        puid = Picplum.Photo.select(thumb, el.data('highres'), tw, th);
         return el.data('puid', puid).addClass(Picplum.settings.img_selected_class);
       }
     },

@@ -11,8 +11,8 @@ root.Picplum = root.Picplum || {}
 $ = jQuery
 
 # Picplum API Base
-# Picplum.api_base = 'http://local.dev:3000/api/1'
-Picplum.api_base = 'https://www.picplum.com/api/1'
+Picplum.api_base = 'http://local.dev:3000/api/1'
+# Picplum.api_base = 'https://www.picplum.com/api/1'
 
 
 # Init Picplum library with options
@@ -53,11 +53,16 @@ Picplum.Photo =
     size
 
   # Select a photo and ad to selected photos collection. 
-  select: (thumb_url, url) ->
+  select: (thumb_url, url, tw = 0, th = 0, w = 0, h = 0) ->
     new_id = @uniqueId()
     Picplum.selected_photos[new_id] =
       thumb_url: thumb_url
       url: url
+    Picplum.selected_photos[new_id]['width'] = w if w > 0
+    Picplum.selected_photos[new_id]['height'] = h if h > 0
+    Picplum.selected_photos[new_id]['thumb_width'] = tw if tw > 0
+    Picplum.selected_photos[new_id]['thumb_height'] = th if th > 0
+
     console.log 'Photo selected: '+new_id if Picplum.debug
     new_id
 
@@ -196,7 +201,9 @@ Picplum.PickerUI =
       .removeClass(Picplum.settings.img_selected_class)
     else
       thumb = if el.data('thumb') then el.data('thumb') else el.attr('src')
-      puid = Picplum.Photo.select thumb, el.data('highres')
+      tw = el[0].naturalWidth
+      th = el[0].naturalHeight
+      puid = Picplum.Photo.select thumb, el.data('highres'), tw, th
       el.data('puid', puid)
       .addClass(Picplum.settings.img_selected_class)
 
