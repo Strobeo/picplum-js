@@ -11,8 +11,8 @@ root.Picplum = root.Picplum || {}
 $ = jQuery
 
 # Picplum API Base
-Picplum.api_base = 'http://local.dev:3000/api/1'
-# Picplum.api_base = 'https://www.picplum.com/api/1'
+# Picplum.api_base = 'http://local.dev:3000/api/1'
+Picplum.api_base = 'https://www.picplum.com/api/1'
 
 
 # Init Picplum library with options
@@ -58,10 +58,13 @@ Picplum.Photo =
     Picplum.selected_photos[new_id] =
       thumb_url: thumb_url
       url: url
+      ratio: 1
+
     Picplum.selected_photos[new_id]['width'] = w if w > 0
     Picplum.selected_photos[new_id]['height'] = h if h > 0
     Picplum.selected_photos[new_id]['thumb_width'] = tw if tw > 0
     Picplum.selected_photos[new_id]['thumb_height'] = th if th > 0
+    Picplum.selected_photos[new_id]['ratio'] = tw/th if tw > 0 and th > 0
 
     console.log 'Photo selected: '+new_id if Picplum.debug
     new_id
@@ -105,14 +108,17 @@ Picplum.Page =
 
 
   open: (url = '') ->
+    # Set Page URL
     $('.open_picplum').attr
       target: "_blank"
       title: "Print selected photos via Picplum.com"
-      href: url 
-
-    $(".open_picplum").trigger('click')
+      href: url
+    .show()
+    
+    # Open Page
+    # $(".open_picplum").trigger('click')
     window.location = url
-    # false
+    false
 
 
 Picplum.PickerUI =
@@ -126,12 +132,14 @@ Picplum.PickerUI =
   print_bar: ->
     el = $(Picplum.settings.print_bar_class)
     el.html """
+
       <h5>Select and print photos via <a href="https://www.picplum.com" title="Picplum.com - Easiest way to send photo prints." target="_blank">Picplum.com</a></h5>
       <button style="display: none;" class='btn #{Picplum.settings.select_mode_btn_class.replace('.', '')}' type='button'>Select Photos for Print</button>
       <button style="display: none;" class='btn #{Picplum.settings.print_selected_btn_class.replace('.', '')}' type='button'>Print Selected</button>
       <span style="display: none;" class='#{Picplum.settings.selected_count_class.replace('.', '')}'></span>
-      <a href='http://local.dev:3000' class='btn open_picplum' style="display: none">Open Picplum</a>
+      <a href='http://local.dev:3000' class='btn open_picplum' style="display: none">Open Picplum.com Page</a>
       <div class="picplum_status">This is the current status</div>
+
             """
 
   # Bind to print bar buttons
@@ -156,7 +164,7 @@ Picplum.PickerUI =
 
     $('.open_picplum').click -> 
       window.open($(@).attr('href'))
-      console.log('opne link') if Picplum.debug
+      console.log('Open Page') if Picplum.debug
 
   select_mode_ui: ->
     btn_el = $(Picplum.settings.select_mode_btn_class)
@@ -170,8 +178,6 @@ Picplum.PickerUI =
       @select_mode = true
     @load_selection()
 
-  select_mode_on: ->
-
 
   load_selection: ->
     self = @
@@ -184,7 +190,8 @@ Picplum.PickerUI =
     el = $(Picplum.settings.selected_count_class)
     count = Picplum.Photo.selected_count()
     if count > 0
-      el.html "<b>#{count}</b> photos selected for print"
+      p = if count == 1 then 'photo' else 'photos'
+      el.html "<b>#{count}</b> #{p} selected for print"
       el.show()
       $(Picplum.settings.print_selected_btn_class).show()
     else
@@ -211,6 +218,7 @@ Picplum.PickerUI =
   select_all: ->
     self = @
     $(Picplum.settings.img_class).each -> self.select(@)
+
 
   status: (msg = '', show = true) ->
     $(Picplum.settings.print_bar_class+' .picplum_status').toggle(show).html(msg)
