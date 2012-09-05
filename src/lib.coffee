@@ -132,15 +132,13 @@ Picplum.PickerUI =
   print_bar: ->
     el = $(Picplum.settings.print_bar_class)
     el.html """
-
       <h5>Select and print photos via <a href="https://www.picplum.com" title="Picplum.com - Easiest way to send photo prints." target="_blank">Picplum.com</a></h5>
       <button style="display: none;" class='btn #{Picplum.settings.select_mode_btn_class.replace('.', '')}' type='button'>Select Photos for Print</button>
       <button style="display: none;" class='btn #{Picplum.settings.print_selected_btn_class.replace('.', '')}' type='button'>Print Selected</button>
       <span style="display: none;" class='#{Picplum.settings.selected_count_class.replace('.', '')}'></span>
       <a href='http://local.dev:3000' class='btn open_picplum' style="display: none">Open Picplum.com Page</a>
-      <div class="picplum_status">This is the current status</div>
-
-            """
+      <div class="picplum_status"></div>
+      """
 
   # Bind to print bar buttons
   bind_btns: ->

@@ -179,7 +179,7 @@
     print_bar: function() {
       var el;
       el = $(Picplum.settings.print_bar_class);
-      return el.html("\n<h5>Select and print photos via <a href=\"https://www.picplum.com\" title=\"Picplum.com - Easiest way to send photo prints.\" target=\"_blank\">Picplum.com</a></h5>\n<button style=\"display: none;\" class='btn " + (Picplum.settings.select_mode_btn_class.replace('.', '')) + "' type='button'>Select Photos for Print</button>\n<button style=\"display: none;\" class='btn " + (Picplum.settings.print_selected_btn_class.replace('.', '')) + "' type='button'>Print Selected</button>\n<span style=\"display: none;\" class='" + (Picplum.settings.selected_count_class.replace('.', '')) + "'></span>\n<a href='http://local.dev:3000' class='btn open_picplum' style=\"display: none\">Open Picplum.com Page</a>\n<div class=\"picplum_status\">This is the current status</div>\n");
+      return el.html("<h5>Select and print photos via <a href=\"https://www.picplum.com\" title=\"Picplum.com - Easiest way to send photo prints.\" target=\"_blank\">Picplum.com</a></h5>\n<button style=\"display: none;\" class='btn " + (Picplum.settings.select_mode_btn_class.replace('.', '')) + "' type='button'>Select Photos for Print</button>\n<button style=\"display: none;\" class='btn " + (Picplum.settings.print_selected_btn_class.replace('.', '')) + "' type='button'>Print Selected</button>\n<span style=\"display: none;\" class='" + (Picplum.settings.selected_count_class.replace('.', '')) + "'></span>\n<a href='http://local.dev:3000' class='btn open_picplum' style=\"display: none\">Open Picplum.com Page</a>\n<div class=\"picplum_status\"></div>");
     },
     bind_btns: function() {
       var self,
