@@ -136,7 +136,8 @@
       return $('.picplum_status').show();
     },
     create: function() {
-      return this.show_picplum_status();
+      this.show_picplum_status();
+      return this.send_data();
     },
     send_data: function() {
       var req,

@@ -98,7 +98,7 @@ Picplum.Page =
 
   create: ->
     @show_picplum_status()
-    # @send_data()
+    @send_data()
   
   send_data: ->
     req = $.ajax
