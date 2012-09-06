@@ -35,6 +35,7 @@
       print_bar_select_mode_class: '.print_bar_select',
       or_span_class: '.picplum_checkout_or',
       select_mode_btn_class: '.select_mode_btn',
+      select_mode_cancel_btn_class: '.btn-inverse',
       print_selected_btn_class: '.print_selected_btn',
       select_mode_btn_text: 'Order Prints',
       print_selected_btn_text: 'Checkout',
@@ -117,6 +118,10 @@
       }
       return id;
     },
+    deselect_all: function() {
+      Picplum.selected_photos = {};
+      return $(Picplum.settings.img_class).removeClass(Picplum.settings.img_selected_class).removeData('puid');
+    },
     idCounter: 0,
     uniqueId: function(prefix) {
       var id;
@@ -191,7 +196,7 @@
     print_bar: function() {
       var el;
       el = $(Picplum.settings.print_bar_class);
-      return el.html("\n<div class=\"picplum_description\" style=\"display: none;\">Printing powered by <a href=\"https://www.picplum.com\" title=\"Picplum.com - The easiest way to send photo prints.\" target=\"_blank\">Picplum.com</a></div>\n<button style=\"display: none;\" class='btn " + (Picplum.settings.select_mode_btn_class.replace('.', '')) + "' type='button'>" + Picplum.settings.select_mode_btn_text + "</button>\n<span class=\"" + (Picplum.settings.or_span_class.replace('.', '')) + "\" style=\"display: none;\">or</span>\n<button style=\"display: none;\" class='btn " + (Picplum.settings.print_selected_btn_class.replace('.', '')) + "' type='button'>" + Picplum.settings.print_selected_btn_text + "</button>\n<span style=\"display: none;\" class='" + (Picplum.settings.selected_count_class.replace('.', '')) + "'>" + Picplum.settings.click_to_select_text + "</span>\n<div class=\"picplum_status\"><p></p></div>\n");
+      return el.html("\n<div class=\"picplum_description\" style=\"display: none;\">Printing powered by <a href=\"https://www.picplum.com\" title=\"Picplum.com - The easiest way to send photo prints.\" target=\"_blank\">Picplum.com</a></div>\n<button style=\"display: none;\" class='btn " + (Picplum.settings.select_mode_btn_class.replace('.', '')) + "' type='button'>" + Picplum.settings.select_mode_btn_text + "</button>\n<span class=\"" + (Picplum.settings.or_span_class.replace('.', '')) + "\" style=\"display: none;\">or</span>\n<button style=\"display: none;\" class='btn " + (Picplum.settings.print_selected_btn_class.replace('.', '')) + "' type='button'>" + Picplum.settings.print_selected_btn_text + "</button>\n<span style=\"display: none;\" class='" + (Picplum.settings.selected_count_class.replace('.', '')) + "'>" + Picplum.settings.click_to_select_text + "</span>\n<div class=\"picplum_status\"><p></p></div><div style=\"clear:both;\"></div>\n");
     },
     bind_btns: function() {
       var self,
@@ -224,15 +229,18 @@
         this.selected_ui();
       }
       if (this.select_mode) {
-        btn_el.removeClass('btn-inverse').text(Picplum.settings.select_mode_btn_text);
         print_bar_el.removeClass(Picplum.settings.print_bar_select_mode_class.replace('.', ''));
+        btn_el.removeClass(Picplum.settings.select_mode_cancel_btn_class.replace('.', ''));
+        btn_el.text(Picplum.settings.select_mode_btn_text);
         $(Picplum.settings.or_span_class).hide();
         $(Picplum.settings.print_selected_btn_class).hide();
         $(Picplum.settings.selected_count_class).hide();
+        Picplum.Photo.deselect_all();
         this.select_mode = false;
       } else {
-        btn_el.addClass('btn-inverse').text('Cancel');
         print_bar_el.addClass(Picplum.settings.print_bar_select_mode_class.replace('.', ''));
+        btn_el.addClass(Picplum.settings.select_mode_cancel_btn_class.replace('.', ''));
+        btn_el.text('Cancel');
         this.select_mode = true;
       }
       return this.load_selection();

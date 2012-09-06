@@ -28,6 +28,7 @@ Picplum.init = (@app_id, opts = {}) ->
     print_bar_select_mode_class: '.print_bar_select'
     or_span_class: '.picplum_checkout_or'
     select_mode_btn_class: '.select_mode_btn'
+    select_mode_cancel_btn_class: '.btn-inverse'
     print_selected_btn_class: '.print_selected_btn'
     select_mode_btn_text: 'Order Prints'
     print_selected_btn_text: 'Checkout'
@@ -59,7 +60,7 @@ Picplum.Photo =
     size++ for key of Picplum.selected_photos when Picplum.selected_photos.hasOwnProperty(key)
     size
 
-  # Select a photo and ad to selected photos collection. 
+  # Select a photo and add to selected photos collection. 
   select: (thumb_url, url, tw = 0, th = 0, w = 0, h = 0) ->
     new_id = @uniqueId()
     Picplum.selected_photos[new_id] =
@@ -81,6 +82,11 @@ Picplum.Photo =
     delete Picplum.selected_photos[id] 
     console.log 'Photo de-selected: '+id if Picplum.debug
     id 
+
+  # remove all print_selected classes on images and delete photo collection
+  deselect_all: ->
+    Picplum.selected_photos = {}
+    $(Picplum.settings.img_class).removeClass(Picplum.settings.img_selected_class).removeData 'puid'
 
   # Generate a uuid for selected photo
   idCounter: 0
@@ -145,7 +151,7 @@ Picplum.PickerUI =
       <span class="#{Picplum.settings.or_span_class.replace('.', '')}" style="display: none;">or</span>
       <button style="display: none;" class='btn #{Picplum.settings.print_selected_btn_class.replace('.', '')}' type='button'>#{Picplum.settings.print_selected_btn_text}</button>
       <span style="display: none;" class='#{Picplum.settings.selected_count_class.replace('.', '')}'>#{Picplum.settings.click_to_select_text}</span>
-      <div class="picplum_status"><p></p></div>
+      <div class="picplum_status"><p></p></div><div style="clear:both;"></div>
 
             """
 
@@ -169,19 +175,25 @@ Picplum.PickerUI =
   select_mode_ui: ->
     btn_el = $(Picplum.settings.select_mode_btn_class)
     print_bar_el = $(Picplum.settings.print_bar_class)
+
     $(Picplum.settings.selected_count_class).show().text Picplum.settings.click_to_select_text
     @selected_ui()  if Picplum.Photo.selected_count() > 0
+
     if @select_mode
-      btn_el.removeClass('btn-inverse').text Picplum.settings.select_mode_btn_text #Picplum.settings.print_selected_btn_text
-      print_bar_el.removeClass Picplum.settings.print_bar_select_mode_class.replace('.','')
+      print_bar_el.removeClass  Picplum.settings.print_bar_select_mode_class.replace('.','')
+      btn_el.removeClass        Picplum.settings.select_mode_cancel_btn_class.replace('.','')
+      btn_el.text               Picplum.settings.select_mode_btn_text #Picplum.settings.print_selected_btn_text
       $(Picplum.settings.or_span_class).hide()
       $(Picplum.settings.print_selected_btn_class).hide()
       $(Picplum.settings.selected_count_class).hide()
+      Picplum.Photo.deselect_all()
       @select_mode = false
     else
-      btn_el.addClass('btn-inverse').text 'Cancel'
-      print_bar_el.addClass Picplum.settings.print_bar_select_mode_class.replace('.','')
+      print_bar_el.addClass     Picplum.settings.print_bar_select_mode_class.replace('.','')
+      btn_el.addClass           Picplum.settings.select_mode_cancel_btn_class.replace('.','')
+      btn_el.text 'Cancel'
       @select_mode = true
+
     @load_selection()
 
   load_selection: ->
