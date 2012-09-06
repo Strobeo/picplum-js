@@ -11,8 +11,8 @@ root.Picplum = root.Picplum || {}
 $ = jQuery
 
 # Picplum API Base
-Picplum.api_base = 'http://localhost:5000/api/1'
-# Picplum.api_base = 'https://www.picplum.com/api/1'
+# Picplum.api_base = 'http://localhost:5000/api/1'
+Picplum.api_base = 'https://www.picplum.com/api/1'
 
 
 # Init Picplum library with options

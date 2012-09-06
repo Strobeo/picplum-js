@@ -16,7 +16,7 @@
 
   $ = jQuery;
 
-  Picplum.api_base = 'http://localhost:5000/api/1';
+  Picplum.api_base = 'https://www.picplum.com/api/1';
 
   Picplum.init = function(app_id, opts) {
     var options;
