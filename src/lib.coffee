@@ -11,8 +11,8 @@ root.Picplum = root.Picplum || {}
 $ = jQuery
 
 # Picplum API Base
-# Picplum.api_base = 'http://local.dev:3000/api/1'
-Picplum.api_base = 'https://www.picplum.com/api/1'
+Picplum.api_base = 'http://localhost:5000/api/1'
+# Picplum.api_base = 'https://www.picplum.com/api/1'
 
 
 # Init Picplum library with options
@@ -21,14 +21,21 @@ Picplum.init = (@app_id, opts = {}) ->
     insert_btns: true 
     select_mode: true 
     insert_count: true 
+    picplum_description: false
     img_class: '.photo'
     img_selected_class: 'selected_print'
     print_bar_class: '.print_bar'
+    print_bar_select_mode_class: '.print_bar_select'
+    or_span_class: '.picplum_checkout_or'
     select_mode_btn_class: '.select_mode_btn'
     print_selected_btn_class: '.print_selected_btn'
-    print_selected_btn_text: 'Select Photos for Print'
+    select_mode_btn_text: 'Order Prints'
+    print_selected_btn_text: 'Checkout'
     print_all_btn_class: '.print_all_btn'
     selected_count_class: '.selected_count'
+    photos_selected_text: ' selected for print.'
+    click_to_select_text: "Click on each photo you want to print. They'll be shipped and mailed to you."
+    picplum_loading_status_text: "You will now be redirected to Picplum.com to complete your order."
     apply_styles: true
     debug: false
 
@@ -83,9 +90,15 @@ Picplum.Photo =
 
 # Picplum Partner Page
 Picplum.Page =
+  show_picplum_status: ->
+    Picplum.PickerUI.select_mode_ui()
+    $(Picplum.settings.print_bar_class).addClass(Picplum.settings.print_bar_select_mode_class.replace('.','')).children().hide()
+    Picplum.PickerUI.status Picplum.settings.picplum_loading_status_text
+    $('.picplum_status').show()
+
   create: ->
-    Picplum.PickerUI.status 'Creating Print Page'
-    @send_data()
+    @show_picplum_status()
+    # @send_data()
   
   send_data: ->
     req = $.ajax
@@ -106,18 +119,11 @@ Picplum.Page =
         url = data.url
         @open(url)
 
-
-  open: (url = '') ->
-    # Set Page URL
-    $('.open_picplum').attr
-      target: "_blank"
-      title: "Print selected photos via Picplum.com"
-      href: url
-    .show()
-    
+  open: (url = '') ->    
     # Open Page
-    # $(".open_picplum").trigger('click')
-    window.location = url
+    window.open(url, '_blank')
+    window.focus()
+    # window.location = url
     false
 
 
@@ -127,18 +133,19 @@ Picplum.PickerUI =
     console.log('Picker UI Init') if Picplum.debug
     @print_bar()
     @bind_btns()
+    $('.picplum_description').show() if !!Picplum.settings.picplum_description 
 
   # Insert Print bar with buttons and selected state
   print_bar: ->
     el = $(Picplum.settings.print_bar_class)
     el.html """
 
-      <h5>Select and print photos via <a href="https://www.picplum.com" title="Picplum.com - Easiest way to send photo prints." target="_blank">Picplum.com</a></h5>
-      <button style="display: none;" class='btn #{Picplum.settings.select_mode_btn_class.replace('.', '')}' type='button'>Select Photos for Print</button>
-      <button style="display: none;" class='btn #{Picplum.settings.print_selected_btn_class.replace('.', '')}' type='button'>Print Selected</button>
-      <span style="display: none;" class='#{Picplum.settings.selected_count_class.replace('.', '')}'></span>
-      <a href='http://local.dev:3000' class='btn open_picplum' style="display: none">Open Picplum.com Page</a>
-      <div class="picplum_status">This is the current status</div>
+      <div class="picplum_description" style="display: none;">Printing powered by <a href="https://www.picplum.com" title="Picplum.com - The easiest way to send photo prints." target="_blank">Picplum.com</a></div>
+      <button style="display: none;" class='btn #{Picplum.settings.select_mode_btn_class.replace('.', '')}' type='button'>#{Picplum.settings.select_mode_btn_text}</button>
+      <span class="#{Picplum.settings.or_span_class.replace('.', '')}" style="display: none;">or</span>
+      <button style="display: none;" class='btn #{Picplum.settings.print_selected_btn_class.replace('.', '')}' type='button'>#{Picplum.settings.print_selected_btn_text}</button>
+      <span style="display: none;" class='#{Picplum.settings.selected_count_class.replace('.', '')}'>#{Picplum.settings.click_to_select_text}</span>
+      <div class="picplum_status"><p></p></div>
 
             """
 
@@ -152,32 +159,30 @@ Picplum.PickerUI =
       Picplum.Page.create()
 
     $(document).on 'click', "#{Picplum.settings.img_class}.select_mode", ->
-      console.log 'select'
       self.select(@)
       self.selected_ui()
       false
     
     $(Picplum.settings.select_mode_btn_class).show().on 'click', => @select_mode_ui() if Picplum.settings.select_mode
-
-
     $(Picplum.settings.print_selected_btn_class).on 'click', -> Picplum.Page.create()
-
-    $('.open_picplum').click -> 
-      window.open($(@).attr('href'))
-      console.log('Open Page') if Picplum.debug
 
   select_mode_ui: ->
     btn_el = $(Picplum.settings.select_mode_btn_class)
+    print_bar_el = $(Picplum.settings.print_bar_class)
+    $(Picplum.settings.selected_count_class).show().text Picplum.settings.click_to_select_text
+    @selected_ui()  if Picplum.Photo.selected_count() > 0
     if @select_mode
-      btn_el.removeClass('btn-inverse')
-      .text Picplum.settings.print_selected_btn_text
+      btn_el.removeClass('btn-inverse').text Picplum.settings.select_mode_btn_text #Picplum.settings.print_selected_btn_text
+      print_bar_el.removeClass Picplum.settings.print_bar_select_mode_class.replace('.','')
+      $(Picplum.settings.or_span_class).hide()
+      $(Picplum.settings.print_selected_btn_class).hide()
+      $(Picplum.settings.selected_count_class).hide()
       @select_mode = false
     else
-      btn_el.addClass('btn-inverse')
-      .text 'Cancel'
+      btn_el.addClass('btn-inverse').text 'Cancel'
+      print_bar_el.addClass Picplum.settings.print_bar_select_mode_class.replace('.','')
       @select_mode = true
     @load_selection()
-
 
   load_selection: ->
     self = @
@@ -191,12 +196,15 @@ Picplum.PickerUI =
     count = Picplum.Photo.selected_count()
     if count > 0
       p = if count == 1 then 'photo' else 'photos'
-      el.html "<b>#{count}</b> #{p} selected for print"
+      el.html "<strong>#{count}</strong> #{p}" + Picplum.settings.photos_selected_text
       el.show()
       $(Picplum.settings.print_selected_btn_class).show()
+      $(Picplum.settings.or_span_class).show()
     else
       el.hide()
       $(Picplum.settings.print_selected_btn_class).hide()
+      $(Picplum.settings.or_span_class).hide()
+      $(Picplum.settings.selected_count_class).show().text Picplum.settings.click_to_select_text
 
   # Select an image
   select: (img, force = true) ->
@@ -219,9 +227,5 @@ Picplum.PickerUI =
     self = @
     $(Picplum.settings.img_class).each -> self.select(@)
 
-
   status: (msg = '', show = true) ->
-    $(Picplum.settings.print_bar_class+' .picplum_status').toggle(show).html(msg)
-
-
-
+    $(Picplum.settings.print_bar_class+' .picplum_status').toggle(show).find('p').text msg
