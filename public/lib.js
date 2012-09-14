@@ -141,12 +141,13 @@
       return $('.picplum_status').show();
     },
     create: function() {
-      this.show_picplum_status();
-      return this.send_data();
+      this.send_data();
+      return this.show_picplum_status();
     },
     send_data: function() {
       var req,
         _this = this;
+      console.log(Picplum.selected_photos);
       return req = $.ajax({
         type: "POST",
         url: Picplum.api_base + '/pages',
@@ -175,8 +176,7 @@
       if (url == null) {
         url = '';
       }
-      window.open(url, '_blank');
-      window.focus();
+      window.location = url;
       return false;
     }
   };

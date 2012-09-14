@@ -103,10 +103,11 @@ Picplum.Page =
     $('.picplum_status').show()
 
   create: ->
-    @show_picplum_status()
     @send_data()
+    @show_picplum_status()
   
   send_data: ->
+    console.log Picplum.selected_photos
     req = $.ajax
       type: "POST",
       url: Picplum.api_base+'/pages'
@@ -127,9 +128,9 @@ Picplum.Page =
 
   open: (url = '') ->    
     # Open Page
-    window.open(url, '_blank')
-    window.focus()
-    # window.location = url
+    # window.open(url, '_blank')
+    # window.focus()
+    window.location = url
     false
 
 
