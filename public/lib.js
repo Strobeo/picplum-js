@@ -136,7 +136,6 @@
   Picplum.Page = {
     show_picplum_status: function() {
       Picplum.PickerUI.select_mode_ui();
-      $(Picplum.settings.print_bar_class).addClass(Picplum.settings.print_bar_select_mode_class.replace('.', '')).children().hide();
       Picplum.PickerUI.status(Picplum.settings.picplum_loading_status_text);
       return $('.picplum_status').show();
     },
@@ -176,7 +175,7 @@
       if (url == null) {
         url = '';
       }
-      window.location = url;
+      window.open(url);
       return false;
     }
   };

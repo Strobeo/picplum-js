@@ -98,7 +98,7 @@ Picplum.Photo =
 Picplum.Page =
   show_picplum_status: ->
     Picplum.PickerUI.select_mode_ui()
-    $(Picplum.settings.print_bar_class).addClass(Picplum.settings.print_bar_select_mode_class.replace('.','')).children().hide()
+    # $(Picplum.settings.print_bar_class).addClass(Picplum.settings.print_bar_select_mode_class.replace('.','')).children().hide()
     Picplum.PickerUI.status Picplum.settings.picplum_loading_status_text
     $('.picplum_status').show()
 
@@ -130,7 +130,16 @@ Picplum.Page =
     # Open Page
     # window.open(url, '_blank')
     # window.focus()
-    window.location = url
+    # w = $(window).width()
+    # h = $(window).height()
+    # l = Math.round(($(window).width()/2)-(w/2))
+    # t = Math.round(($(window).height()/2)-(h/2))
+    # fw = window.open(url,'Picplum','height='+h.toString()+',width='+w.toString())
+    # fw.resizeTo(w,h)
+    # fw.moveTo(l,t)
+    # fw
+    window.open(url)
+    # window.location = url
     false
 
 
